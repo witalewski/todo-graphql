@@ -5,23 +5,22 @@
 yarn init -y
 yarn add graphql-yoga
 ```
+We will use a GraphQL server from Prisma which is based on express/apollo-server.
 
 ## Create project files
-**src/index.js**
-```js
-const { GraphQLServer } = require("graphql-yoga");
-const Query = require("./resolvers/Query");
+**src/schema.graphql**
+```gql
+type Query {
+  tasks: [Task!]!
+}
 
-const resolvers = {
-  Query
-};
-
-const server = new GraphQLServer({
-  typeDefs: "./src/schema.graphql",
-  resolvers
-});
-server.start(() => console.log(`Server is running on http://localhost:4000`));
+type Task {
+    id: ID!
+    name: String!
+    description: String
+}
 ```
+Here we define schema for our data as well as all the queries and mutations we intend to expose to access and manipulate the data.
 
 **src/resolvers/Query.js**
 ```js
@@ -40,19 +39,24 @@ module.exports = {
   tasks
 };
 ```
+This is our resolver responsible for retrieving list of tasks. As of now, we will just return a pre-defined list to demonstrate how GraphQL works. Ultimately this has to be replaced with some data from an actual database - we will get to this point soon.
 
-**src/schema.graphql**
-```gql
-type Query {
-  tasks: [Task!]!
-}
+**src/index.js**
+```js
+const { GraphQLServer } = require("graphql-yoga");
+const Query = require("./resolvers/Query");
 
-type Task {
-    id: ID!
-    name: String!
-    description: String
-}
+const resolvers = {
+  Query
+};
+
+const server = new GraphQLServer({
+  typeDefs: "./src/schema.graphql",
+  resolvers
+});
+server.start(() => console.log(`Server is running on http://localhost:4000`));
 ```
+This is the application entry point where we reference our schema and resolvers and start the server.
 
 ## Run the code
 ```sh
@@ -71,6 +75,7 @@ type Task {
     description: String
 }
 ```
+We copy part of our existing schema which reflects the data model to a separate file. This file will be used by Prisma to generate a database API and... the database itself.
 
 **database/prisma.yml**
 ```yml
@@ -78,6 +83,7 @@ endpoint: ''
 datamodel: datamodel.graphql
 secret: R937avfvQx8d
 ```
+This is all the configuration Prisma needs to do its work. For now.
 
 ## Install Prisma
 ```sh
@@ -134,6 +140,7 @@ query {
 
 ### Update the query resolver
 ***src/resolvers/Query.js***
+```js
 const tasks = (root, args, context, info) => {
   return context.db.query.tasks({}, info);
 };
@@ -141,6 +148,7 @@ const tasks = (root, args, context, info) => {
 module.exports = {
   tasks
 };
+```
 
 ### Add prisma binding
 
