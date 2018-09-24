@@ -1,0 +1,8 @@
+#endpoint: ''
+endpoint: https://us1.prisma.sh/krzysztof-witalewski/todo-graphql/dev
+datamodel: datamodel.graphql
+secret: 9R37avfvQx8d
+
+hooks:
+  post-deploy:
+    - graphql get-schema --project database

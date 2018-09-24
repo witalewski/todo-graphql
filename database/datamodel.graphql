@@ -1,0 +1,6 @@
+type Task {
+    id: ID! @unique
+    createdAt: DateTime!
+    name: String!
+    description: String
+}
